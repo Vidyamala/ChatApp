@@ -13,6 +13,8 @@ const connectDB = require("./config/db.connect");
 // })
  connectDB();
 require("./router/auth")(app)
+require("./router/chat")(app)
+require("./router/message")(app);
 app.listen(serverConfig.PORT,()=>{
     console.log(`Application running on port ${serverConfig.PORT}`);
 })

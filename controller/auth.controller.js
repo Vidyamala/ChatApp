@@ -2,6 +2,7 @@ const User=require("../models/user.model");
 const bcrypt=require("bcrypt");
 const jwt=require("jsonwebtoken")
 exports.signUp=async(req,res)=>{
+
     var {userId,password,email,profilePic}=req.body;
     if(!profilePic) profilePic="https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
     const userObj={
@@ -33,9 +34,16 @@ exports.signIn=async(req,res)=>{
         expiresIn:"30d"
     })
     res.status(200).send({
-        userId:user.userId,
-        email:user.email,
+       user,
         token:token
     })
 
+}
+
+exports.getUser=async (req,res)=>{
+    console.log(req.userId);
+    const {match}=req.query;
+    const findcondition=(!match)?{}:{$or:[{userId:{$regex:match,$options:"i"}},{email:{$regex:match,$options:"i"}}]};
+    const user=await User.find(findcondition);
+    res.status(200).send(user)
 }
