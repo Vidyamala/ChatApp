@@ -28,7 +28,7 @@ exports.signIn=async(req,res)=>{
     }
     var iscorrectPassword=bcrypt.compareSync(password,user.password);
     if(!iscorrectPassword){
-        res.status(403).send({message:"Invalid password"})
+       return res.status(403).send({message:"Invalid password"})
     }
     const token=jwt.sign({id:user._id},process.env.SECRET,{
         expiresIn:"30d"
@@ -42,8 +42,19 @@ exports.signIn=async(req,res)=>{
 
 exports.getUser=async (req,res)=>{
     console.log(req.userId);
+    console.log(req.query.match);
     const {match}=req.query;
+    if(!match){
+        return res.status(200).send([])
+    }
     const findcondition=(!match)?{}:{$or:[{userId:{$regex:match,$options:"i"}},{email:{$regex:match,$options:"i"}}]};
-    const user=await User.find(findcondition);
+    const user=await User.find(findcondition).find({ _id: { $ne: req.userId } });
+    if(user.length==0) return res.status(200).send({message:"No match found"})
+    res.status(200).send(user)
+}
+exports.getUserById=async(req,res)=>{
+    const {userid}=req.params;
+    console.log(userid)
+    const user=await User.find({_id:userid});
     res.status(200).send(user)
 }

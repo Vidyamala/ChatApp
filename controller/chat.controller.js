@@ -4,9 +4,11 @@
 // 4) addUserToGroupchat
 // 5) removeUserFromGroupchat
 // 6) renameGroupchat
-const Chat=require("../models/chat.model")
+const Chat=require("../models/chat.model");
+const User = require("../models/user.model");
 exports.accessChat=async(req,res)=>{
     const {userId}=req.body;
+    console.log(req.userId,userId,"both")
     if(!userId){
         res.status(400).send({message:"Provide UserId to proceed"});
         return;
@@ -18,7 +20,7 @@ exports.accessChat=async(req,res)=>{
           { users: { $elemMatch: { $eq: req.userId } } },
           { users: { $elemMatch: { $eq: userId } } },
         ],
-      }).populate("users","-password").populate("groupAdmin","-password").populate("latestMessage")
+      }).populate("users","-password").populate({path:"latestMessage",populate:{path:"sender"}})
     console.log("hello")
     if(!chat){
         console.log("helleeeeeeeeeeeeeeeeo")
@@ -27,12 +29,15 @@ exports.accessChat=async(req,res)=>{
         res.send(fullChat);
         return;
     }
-    res.status(200).send(chat);
+    
+        res.send(chat);
+        return;
 }
 exports.fetchChatofUser= async(req,res)=>{
     const chat=await Chat.find({users:req.userId}).
     populate("users","-password").
-    populate("groupAdmin","-password").populate("latestMessage");
+    populate("groupAdmin","-password").populate({path:"latestMessage",populate:{path:"sender",modal:"User"}}).sort({updatedAt: -1});
+
     res.status(200).send(chat);
 }
 exports.createGroupchat=async (req,res)=>{

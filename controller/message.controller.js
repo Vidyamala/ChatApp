@@ -13,10 +13,16 @@ exports.sendmessage=async (req,res)=>{
     res.status(201).send(fullMessage);
 }
 exports.getMessageByChatId=async (req,res)=>{
-    const {chatId}=req.body;
+    const {chatId}=req.query;
     console.log(chatId)
-    let message=await Message.find({chat:chatId}).populate("sender","-password").populate("chat");
-    message=await User.populate(message,{path:"chat.users",select:"email profilePic userId"});
-    message=await Message.populate(message,{path:"chat.latestMessage",select:"content sender"})
+   try{
+    let message=await Message.find({chat:chatId}).populate("sender","-password")
+    // .populate("chat");
+    // message=await User.populate(message,{path:"chat.users",select:"email profilePic userId"});
+    // message=await Message.populate(message,{path:"chat.latestMessage",select:"content sender"})
     res.status(200).send(message);
+   }
+   catch(err){
+    res.status(500).send(err.message)
+   }
 }

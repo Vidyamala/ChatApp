@@ -2,6 +2,8 @@ const serverConfig=require("./config/server_config")
 const express=require("express");
 const bodyparser=require("body-parser");
 const app= express();
+var cors = require('cors')
+app.use(cors())
 app.use(bodyparser.json());
 const mongoose=require("mongoose");
 const { db_URL } = require("./config/db.config");
