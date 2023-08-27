@@ -72,7 +72,7 @@ exports.addUsersTogroup=async (req,res)=>{
 exports.removeUserFromGroup=async (req,res)=>{
     const userId=req.body.users;
     const {chatId}=req.body;
-    console.log(chatId);
+    console.log(chatId,userId,"chatid and userid");
      const chat=await Chat.findOneAndUpdate(
          {_id:chatId},
          {

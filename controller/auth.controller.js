@@ -4,11 +4,15 @@ const jwt=require("jsonwebtoken")
 exports.signUp=async(req,res)=>{
 
     var {userId,password,email,profilePic}=req.body;
+    userId=userId.toLowerCase();
+    const emaill=email.toLowerCase()
+    console.log(userId,email)
+    console.log(profilePic)
     if(!profilePic) profilePic="https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
     const userObj={
         userId:userId,
         password:bcrypt.hashSync(password,8),
-        email:email,
+        email:emaill,
         profilePic:profilePic
     }
     try{
@@ -16,11 +20,17 @@ exports.signUp=async(req,res)=>{
         res.status(201).send(user);
     }
     catch(err){
-        res.status(500).send({message: err.message})
+        console.log(err)
+        if(err.code==11000){
+           if(err.keyValue.userId) return res.status(400).send({message:`UserId ${userId} already exists`})
+           else if(err.keyValue.email) return res.status(400).send({message:`Email ${email} already exists`})
+        }
+       return res.status(500).send({message: err.message})
     }
 }
 exports.signIn=async(req,res)=>{
-    const {userId,password}=req.body;
+    var {userId,password}=req.body;
+    userId=userId.toLowerCase();
     const user=await User.findOne({userId});
     if(!user){
         res.status(400).send({message:"UserId doesn't exists"});
